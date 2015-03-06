@@ -1,0 +1,18 @@
+{
+  "name": "validate-fields",
+  "version": "0.1.0",
+  "description": "Validate fields for requests",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+	"url": "https://github.com/RobCatch/validate-fields"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "robcatchpole@gmail.com",
+  "license": "ISC"
+}
