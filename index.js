@@ -1,16 +1,16 @@
 module.exports = function(fields, onMissing) {
     return function(req, res, next){
-        var missing = check(fields, req, res, {
+        var missing = check(fields, req, {
             method: req.method == "POST" || req.method == "PUT" ? 'body' : 'query'
         });
         if(missing.length > 0)
-            onMissing(missing.join('\n'), next);
+            onMissing(missing.join('\n'), req, res, next);
         else
             next();
     }
 }
 
-function check(required, req, res, options){
+function check(required, req, options){
     var newOpts,
         newMissing = [],
         missing = [],
@@ -20,7 +20,7 @@ function check(required, req, res, options){
         if(required[i] instanceof Array){
             newOpts = JSON.parse(JSON.stringify(options));
             newOpts.or = false;
-            newMissing = check(required[i], req, res, newOpts);
+            newMissing = check(required[i], req, newOpts);
             missing = missing.concat(newMissing);
             if(options.or && newMissing.length == 0)
                 forcePass = true;
@@ -32,10 +32,10 @@ function check(required, req, res, options){
                 newOpts = JSON.parse(JSON.stringify(options));
                 if(key == "$or" || key == '$and'){
                     newOpts.or = key == '$or';
-                    newMissing = check(required[i][key], req, res, newOpts);
+                    newMissing = check(required[i][key], req, newOpts);
                 } else if(key == "$body" || key == "$query"){
                     newOpts.method = key.slice(1);
-                    newMissing = check(required[i][key], req, res, newOpts);
+                    newMissing = check(required[i][key], req, newOpts);
                 } else if (key == '$number'){
                     if(isNaN(given)) {
                         delete req[options.method][value];
