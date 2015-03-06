@@ -100,6 +100,36 @@ app.use('api/counter/update', validate([
 })
 ```
 
+### $int
+Checks that a field is an integer, and converts it from a string.
+```javascript
+app.use('api/event/create', validate([
+  "name",
+  "location",
+  { $number: 'attendence' }
+], function(missing){
+  res.status(400).json({
+    status: 400,
+    message: missing
+  })
+})
+```
+
+### $boolean
+Checks that field is a boolean value, true or false, and converts it from a string.
+```javascript
+app.use('api/event/create', validate([
+  "name",
+  "location",
+  { $boolean: 'private' }
+], function(missing){
+  res.status(400).json({
+    status: 400,
+    message: missing
+  })
+})
+```
+
 ### $date
 Checks that a field is a date, and converts it from a string into a Date object.
 ```javascript
@@ -107,6 +137,23 @@ app.use('api/event/create', validate([
   "name",
   "location",
   { $date: date }
+], function(missing){
+  res.status(400).json({
+    status: 400,
+    message: missing
+  })
+})
+```
+
+### $email
+Checks that a field is a valid email address.
+```javascript
+app.use('api/user/login', validate([
+    { $or: [
+      { $email: 'email' },
+      'username',
+    ] },
+    'password'
 ], function(missing){
   res.status(400).json({
     status: 400,

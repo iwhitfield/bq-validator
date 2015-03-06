@@ -200,7 +200,7 @@ describe("Validate correct datatype", function(){
         c({
             method: "GET",
             query: {
-                num: "10"
+                num: "10.6"
             },
             body: { }
         }, null, next)
@@ -218,6 +218,33 @@ describe("Validate correct datatype", function(){
             },
             body: { }
         }, null, assert.fail.bind(null, "Failed to indentify field was not a number."))
+    });
+
+    it("should verify field is an integer", function(next){
+        var c = check([ { $int: 'num' } ], function(missing){
+            assert.fail("Field was given as integer, but said to be missing");
+        })
+        c({
+            method: "GET",
+            query: {
+                num: "10"
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it("should verify field is not an integer", function(next){
+        var c = check([ { $int: 'num' } ], function(missing){
+            assert.equal(missing, "num must be an integer.");
+            next();
+        })
+        c({
+            method: "GET",
+            query: {
+                num: "10.6"
+            },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to indentify field was not an integer."))
     });
 
     it("should verify field is a date", function(next){
@@ -274,7 +301,61 @@ describe("Validate correct datatype", function(){
                 json: "{ invalid, json }"
             },
             body: { }
-        }, null, assert.fail.bind(null, "Failed to indentify field was not a number."))
+        }, null, assert.fail.bind(null, "Failed to indentify field was not JSON."))
+    });
+
+    it("should verify field is a boolean", function(next){
+        var c = check([ { $boolean: 'bool' } ], function(missing){
+            assert.fail("Field was given as boolean, but said to be missing");
+        })
+        c({
+            method: "GET",
+            query: {
+                bool: "true"
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it("should verify field is not a boolean", function(next){
+        var c = check([ { $boolean: 'bool' } ], function(missing){
+            assert.equal(missing, "bool must be true or false.");
+            next();
+        })
+        c({
+            method: "GET",
+            query: {
+                bool: "invalid"
+            },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to indentify field was not a boolean."))
+    });
+
+    it("should verify field is an email", function(next){
+        var c = check([ { $email: 'email' } ], function(missing){
+            assert.fail("Field was given as email, but said to be missing");
+        })
+        c({
+            method: "GET",
+            query: {
+                email: "robcatchpole@gmail.com"
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it("should verify field is not an email", function(next){
+        var c = check([ { $email: 'email' } ], function(missing){
+            assert.equal(missing, "email must be a valid email address.");
+            next();
+        })
+        c({
+            method: "GET",
+            query: {
+                email: "invalid@address"
+            },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to indentify field was not an email."))
     });
 })
 

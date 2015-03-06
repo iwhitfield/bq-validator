@@ -42,6 +42,12 @@ function check(required, req, res, options){
                         newMissing = [value + " must be a number."]
                     } else
                         req[options.method][value] = Number(value);
+                } else if (key == '$int'){
+                    if(isNaN(given) || given % 1 !== 0) {
+                        delete req[options.method][value];
+                        newMissing = [value + " must be an integer."]
+                    } else
+                        req[options.method][value] = Number(value);
                 } else if(key == '$date') {
                     if(!isNaN(value)) given = Number(given);
                     var d = new Date(given);
@@ -55,7 +61,23 @@ function check(required, req, res, options){
                         given = JSON.parse(given);
                         req[options.method][value] = given;
                     } catch(err){
+                        delete req[options.method][value];
                         newMissing = [value + " must be in JSON format."]
+                    }
+                } else if(key == '$boolean'){
+                    if(given === 'true')
+                        req[options.method][value] = true;
+                    else if(given === 'false')
+                        req[options.method][value] = false;
+                    else {
+                        newMissing = [value + " must be true or false."]
+                        delete req[options.method][value]
+                    }
+                } else if(key == "$email") {
+                    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                    if(!re.test(req[options.method][value])){
+                        delete req[options.method][value];
+                        newMissing = [value + " must be a valid email address."]
                     }
                 }
                 missing = missing.concat(newMissing);
