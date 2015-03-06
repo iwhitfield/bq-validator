@@ -1,4 +1,4 @@
-# validate-fields
+# bq-validator
 Middleware to validate fields given in requests to an express app
 
 ## Usage
@@ -10,7 +10,7 @@ message describing what fields are missing.
 The required fields can contain nested operators for conditional fields.
 
 ```javascript
-var validate = require('validate-fields');
+var validate = require('bq-validator');
 app.use('api/users/login', validate([ 'username', 'password' ], function(missing){
   res.status(400).json({
     status: 400,
