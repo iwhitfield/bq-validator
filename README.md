@@ -11,7 +11,7 @@ The required fields can contain nested operators for conditional fields.
 
 ```javascript
 var validate = require('bq-validator');
-app.use('api/users/login', validate([ 'username', 'password' ], function(missing){
+app.use('api/users/login', validate([ 'username', 'password' ], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -30,7 +30,7 @@ app.use('api/users/login', validate([
       'username',
     ] },
     'password'
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: "Missing login credentials!"
@@ -49,7 +49,7 @@ app.use('api/location/create', validate([
       ] },
       "address"
     ] }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -79,7 +79,7 @@ app.use('api/app/update', validate([
     'name',
     'description'
   ] }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -92,7 +92,7 @@ Checks that a field is a number, and converts it from a string.
 ```javascript
 app.use('api/counter/update', validate([
   { $number: 'count' }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: "Count is required".
@@ -107,7 +107,7 @@ app.use('api/event/create', validate([
   "name",
   "location",
   { $number: 'attendence' }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -122,7 +122,7 @@ app.use('api/event/create', validate([
   "name",
   "location",
   { $boolean: 'private' }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -137,7 +137,7 @@ app.use('api/event/create', validate([
   "name",
   "location",
   { $date: date }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -154,7 +154,7 @@ app.use('api/user/login', validate([
       'username',
     ] },
     'password'
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: missing
@@ -167,10 +167,70 @@ Checks that a field is a JSON string, and converts it into an object.
 ```javascript
 app.use('api/event/query', validate([
   { $json: 'where' }
-], function(missing){
+], function(missing, req, res){
   res.status(400).json({
     status: 400,
     message: "Query must have where clause in JSON format"
+  })
+})
+```
+
+## Custom Validation
+
+Fields can be checked to match a specific set of values, or be passed to a function for more detailed verification.
+To do this, use an object containing the field name as a key, and an array to match against as the corresponding value.
+
+```javascript
+app.use('api/car/create', validate([
+  { color: ['red', 'blue', 'green', 'black', 'white'] },
+  'make',
+  'model'
+], function(missing, req, res){
+  res.status(400).json({
+    status: 400,
+    message: missing
+  })
+})
+```
+
+Using a function. The value of field given with the request is passed to the function. If the field is not given then
+it will fail automatically. If the validation is failed, then the function should have no return value. If a return value
+is given, it will overwrite the value of the field.
+```javascript
+// Change Akari to Akari~n, and leave all other values the same.
+app.use('api/character/add', validate([
+  { name: [ function(value){
+    if(name == 'Akari')
+      value = 'Akari~n';
+    return value
+  } ] }
+], function(missing, req, res){
+  res.status(400).json({
+    status: 400,
+    message: "name is required"
+  })
+})
+
+// Only allow dates after 2015-01-01
+// Since $date occurs first, the value will already be a date object
+// If no date was given, or it was invalid, the value will be undefined and verification will fail automatically.
+// Note the value must be returned.
+
+app.use('api/reminder/create', validate([
+  'title',
+  'description',
+  {
+    $date: 'date',
+    date: [ function(value){
+      if(value > new Date('2015-01-01')){
+        return value;
+      }
+    } ]
+  }
+], function(missing, req, res){
+  res.status(400).json({
+    status: 400,
+    message: missing
   })
 })
 ```

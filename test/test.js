@@ -359,6 +359,72 @@ describe("Validate correct datatype", function(){
     });
 })
 
+describe("Validate custom validation", function(){
+    it('should verify field value is a, b or c', function(next){
+        var c = check([ { field: ['a', 'b', 'c'] } ], function(missing){
+            assert.fail("Field was given as b, but said to be missing", missing);
+        })
+        c({
+            method: "GET",
+            query: {
+                field: "b"
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it('should verify field value is not a, b or c', function(next){
+        var c = check([ { field: ['a', 'b', 'c'] } ], function(missing){
+            assert.equal(missing, "field must be one of following: a, b, c.");
+            next();
+        })
+        c({
+            method: "GET",
+            query: {
+                field: "invalid"
+            },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to identify invalid value."))
+    });
+
+    it('should verify field value valid using function', function(next){
+        var c = check([{
+            field: [function(value){
+                if(value.substr(0, 3) == 'num' && !isNaN(value.substring(3, value.length)))
+                    return Number(value.substring(0, value.length - 1));
+            }]
+        }], function(missing){
+            assert.fail("Field was given as b, but said to be missing", missing);
+        })
+        c({
+            method: "GET",
+            query: {
+                field: "num365"
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it('should verify field value invalid using function', function(next){
+        var c = check([{
+            field: [function(value){
+                if(value.substr(0, 3) == 'num' && !isNaN(value.substring(3, value.length)))
+                    return Number(value.substring(0, value.length - 1));
+            }]
+        }], function(missing){
+            assert.equal("field must be valid format.", missing);
+            next();
+        })
+        c({
+            method: "GET",
+            query: {
+                field: "nah365"
+            },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to identify invalid value."))
+    });
+})
+
 describe("Validate $query and $body", function(){
     it("should verify $query field is in POST request", function(next){
         var c = check([ { $query: 'q' } ], function(missing){

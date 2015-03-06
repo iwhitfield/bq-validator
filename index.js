@@ -75,9 +75,38 @@ function check(required, req, options){
                     }
                 } else if(key == "$email") {
                     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                    if(!re.test(req[options.method][value])){
+                    if(!re.test(given)){
                         delete req[options.method][value];
                         newMissing = [value + " must be a valid email address."]
+                    }
+                } else if(value instanceof Array){
+                    given = req[options.method][key];
+                    if(given === undefined){
+                        newMissing = [key + " must be given."]
+                    } else {
+                        var passed = false,
+                            hasFunction = false;
+                        for (var j in value) {
+                            if (typeof value[j] == 'function') {
+                                hasFunction = true;
+                                var v = value[j](given, req);
+                                if (v !== undefined) {
+                                    req[options.method][value] = v;
+                                    passed = true;
+                                    break;
+                                }
+                            } else {
+                                if(given == value[j]){
+                                    passed = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!passed){
+                            delete req[options.method][value];
+                            newMissing = [hasFunction ? key + " must be valid format."
+                                : key + ' must be one of following: ' + value.join(', ') + '.']
+                        }
                     }
                 }
                 missing = missing.concat(newMissing);
