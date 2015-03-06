@@ -204,7 +204,7 @@ describe("Validate correct datatype", function(){
             },
             body: { }
         }, null, next)
-    })
+    });
 
     it("should verify field is not a number", function(next){
         var c = check([ { $number: 'num' } ], function(missing){
@@ -218,7 +218,8 @@ describe("Validate correct datatype", function(){
             },
             body: { }
         }, null, assert.fail.bind(null, "Failed to indentify field was not a number."))
-    })
+    });
+
     it("should verify field is a date", function(next){
         var c = check([ { $date: 'date' } ], function(missing){
             assert.fail("Field was given as number, but said to be missing");
@@ -230,7 +231,7 @@ describe("Validate correct datatype", function(){
             },
             body: { }
         }, null, next)
-    })
+    });
 
     it("should verify field is not a date", function(next){
         var c = check([ { $date: 'date' } ], function(missing){
@@ -244,7 +245,37 @@ describe("Validate correct datatype", function(){
             },
             body: { }
         }, null, assert.fail.bind(null, "Failed to indentify field was not a number."))
-    })
+    });
+
+    it("should verify field is JSON", function(next){
+        var c = check([ { $json: 'json' } ], function(missing){
+            assert.fail("Field was given as JSON, but said to be missing");
+        })
+        c({
+            method: "GET",
+            query: {
+                json: JSON.stringify({
+                    a: 5,
+                    b: 10
+                })
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it("should verify field is not JSON", function(next){
+        var c = check([ { $json: 'json' } ], function(missing){
+            assert.equal(missing, "json must be in JSON format.");
+            next();
+        })
+        c({
+            method: "GET",
+            query: {
+                json: "{ invalid, json }"
+            },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to indentify field was not a number."))
+    });
 })
 
 describe("Validate $query and $body", function(){

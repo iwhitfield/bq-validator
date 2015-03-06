@@ -50,6 +50,13 @@ function check(required, req, res, options){
                         newMissing = [value + " must be a valid date."];
                     } else
                         req[options.method][value] = d;
+                } else if(key == '$json'){
+                    try {
+                        given = JSON.parse(given);
+                        req[options.method][value] = given;
+                    } catch(err){
+                        newMissing = [value + " must be in JSON format."]
+                    }
                 }
                 missing = missing.concat(newMissing);
                 if(options.or && newMissing.length == 0)
