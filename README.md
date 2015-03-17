@@ -74,7 +74,7 @@ This can be overiden for specific fields using $query and $body. In the example 
 as a query parameter, with either a name or description in the request body (presuming this is a PUT request).
 ```javascript
 app.use('api/app/update', validate([
-  { $query: 'appKey' }.
+  { $query: 'appKey' },
   { $or: [
     'name',
     'description'
@@ -171,6 +171,23 @@ app.use('api/event/query', validate([
   res.status(400).json({
     status: 400,
     message: "Query must have where clause in JSON format"
+  })
+})
+```
+
+### Multiple fields of a type
+
+An array can be given to check mutliple fields for operators that check for a specific value type.
+The example below shows two dates required to create and event.
+```javascript
+app.use('api/event/create', validate([
+  "name",
+  "location",
+  { $date: [ 'start', 'end' ] }
+], function(missing, req, res){
+  res.status(400).json({
+    status: 400,
+    message: missing
   })
 })
 ```
