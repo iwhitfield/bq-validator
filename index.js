@@ -118,14 +118,14 @@ var operators = {
             delete req[options.method][value];
             return [value + " must be a number."];
         } else
-            req[options.method][value] = Number(value);
+            req[options.method][value] = Number(given);
     },
     $int: function(req, given, value, options){
         if(isNaN(given) || given % 1 !== 0) {
             delete req[options.method][value];
             return [value + " must be an integer."];
         } else
-            req[options.method][value] = Number(value);
+            req[options.method][value] = Number(given);
     },
     $date: function(req, given, value, options){
         if(!isNaN(value)) given = Number(given);
