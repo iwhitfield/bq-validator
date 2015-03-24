@@ -20,8 +20,8 @@ module.exports = function(fields, method, onMissing) {
             onMissing(missing.join('\n'), req, res, next);
         else
             next();
-    }
-}
+    };
+};
 
 function check(required, req, options){
     var newOpts,
@@ -35,7 +35,7 @@ function check(required, req, options){
             newOpts.or = false;
             newMissing = check(required[i], req, newOpts);
             missing = missing.concat(newMissing);
-            if(options.or && newMissing.length == 0)
+            if(options.or && newMissing.length === 0)
                 forcePass = true;
         } else if(typeof required[i] == 'object'){
             for(var key in required[i]){
@@ -60,21 +60,21 @@ function check(required, req, options){
                 } else if(value instanceof Array){
                     given = req[options.method][key];
                     if(given === undefined){
-                        newMissing = [key + " must be given."]
+                        newMissing = [key + " must be given."];
                     } else {
                         var passed = false,
                             hasFunction = false;
-                        for (var j in value) {
-                            if (typeof value[j] == 'function') {
+                        for (var x in value) {
+                            if (typeof value[x] == 'function') {
                                 hasFunction = true;
-                                var v = value[j](given, req);
+                                var v = value[x](given, req);
                                 if (v !== undefined) {
                                     req[options.method][value] = v;
                                     passed = true;
                                     break;
                                 }
                             } else {
-                                if(given == value[j]){
+                                if(given == value[x]){
                                     passed = true;
                                     break;
                                 }
@@ -83,13 +83,13 @@ function check(required, req, options){
                         if(!passed){
                             delete req[options.method][value];
                             newMissing = [hasFunction ? key + " must be valid format."
-                                : key + ' must be one of following: ' + value.join(', ') + '.']
+                                : key + ' must be one of following: ' + value.join(', ') + '.'];
                         }
                     }
                 }
 
                 missing = missing.concat(newMissing);
-                if((options.or || newOpts.or) && newMissing.length == 0)
+                if((options.or || newOpts.or) && newMissing.length === 0)
                     forcePass = true;
             }
         } else if(typeof req[options.method][required[i]] == 'undefined') {
@@ -104,7 +104,7 @@ function check(required, req, options){
 
     if(options.or){
         for(i in missing){
-            missing[i] = '  ' + missing[i]
+            missing[i] = '  ' + missing[i];
         }
         missing.unshift("At least one of the following.");
     }
@@ -116,14 +116,14 @@ var operators = {
     $number: function(req, given, value, options) {
         if (isNaN(given)) {
             delete req[options.method][value];
-            return [value + " must be a number."]
+            return [value + " must be a number."];
         } else
             req[options.method][value] = Number(value);
     },
     $int: function(req, given, value, options){
         if(isNaN(given) || given % 1 !== 0) {
             delete req[options.method][value];
-            return [value + " must be an integer."]
+            return [value + " must be an integer."];
         } else
             req[options.method][value] = Number(value);
     },
@@ -142,7 +142,7 @@ var operators = {
             req[options.method][value] = given;
         } catch(err){
             delete req[options.method][value];
-            return [value + " must be in JSON format."]
+            return [value + " must be in JSON format."];
         }
     },
     $boolean: function(req, given, value, options){
@@ -159,7 +159,7 @@ var operators = {
         var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if(!re.test(given)){
             delete req[options.method][value];
-            return [value + " must be a valid email address."]
+            return [value + " must be a valid email address."];
         }
     }
-}
+};
