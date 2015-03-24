@@ -1,23 +1,23 @@
 module.exports = function(fields, method, onMissing) {
-    if(arguments.length == 2) {
+    if(arguments.length === 2) {
         onMissing = method;
         method = null;
     } else
         method = method.toLowerCase();
     return function(req, res, next){
         var defMethod = false;
-        if(method && req.method.toLowerCase() != method)
+        if(method && req.method.toLowerCase() !== method)
             return next();
         else if(!method){
             method = req.method.toLowerCase();
             defMethod = true;
         }
         var missing = check(fields, req, {
-            method: method == "post" || method == "put" ? 'body' : 'query',
+            method: method === "post" || method === "put" ? "body" : "query",
             defaultMethod: defMethod
         });
         if(missing.length > 0)
-            onMissing(missing.join('\n'), req, res, next);
+            onMissing(missing.join("\n"), req, res, next);
         else
             next();
     };
@@ -37,17 +37,17 @@ function check(required, req, options){
             missing = missing.concat(newMissing);
             if(options.or && newMissing.length === 0)
                 forcePass = true;
-        } else if(typeof required[i] == 'object'){
+        } else if(typeof required[i] === "object"){
             for(var key in required[i]){
                 newMissing = [];
                 var value = required[i][key],
                     given = req[options.method][value];
 
                 newOpts = JSON.parse(JSON.stringify(options));
-                if(key == "$or" || key == '$and'){
-                    newOpts.or = key == '$or';
+                if(key === "$or" || key === "$and"){
+                    newOpts.or = key === "$or";
                     newMissing = check(value, req, newOpts);
-                } else if(key == "$body" || key == "$query"){
+                } else if(key === "$body" || key === "$query"){
                     newOpts.method = key.slice(1);
                     newOpts.defaultMethod = false;
                     newMissing = check(value, req, newOpts);
@@ -65,7 +65,7 @@ function check(required, req, options){
                         var passed = false,
                             hasFunction = false;
                         for (var x in value) {
-                            if (typeof value[x] == 'function') {
+                            if (typeof value[x] === "function") {
                                 hasFunction = true;
                                 var v = value[x](given, req);
                                 if (v !== undefined) {
@@ -74,7 +74,7 @@ function check(required, req, options){
                                     break;
                                 }
                             } else {
-                                if(given == value[x]){
+                                if(given === value[x]){
                                     passed = true;
                                     break;
                                 }
@@ -83,7 +83,7 @@ function check(required, req, options){
                         if(!passed){
                             delete req[options.method][value];
                             newMissing = [hasFunction ? key + " must be valid format."
-                                : key + ' must be one of following: ' + value.join(', ') + '.'];
+                                : key + " must be one of following: " + value.join(", ") + "."];
                         }
                     }
                 }
@@ -92,9 +92,9 @@ function check(required, req, options){
                 if((options.or || newOpts.or) && newMissing.length === 0)
                     forcePass = true;
             }
-        } else if(typeof req[options.method][required[i]] == 'undefined') {
+        } else if(typeof req[options.method][required[i]] === "undefined") {
             missing.push(required[i] + " must be given" +
-                (options.defaultMethod ? '.' : " as " + options.method + " parameter."));
+                (options.defaultMethod ? "." : " as " + options.method + " parameter."));
         } else if(options.or)
             forcePass = true;
     }
@@ -104,7 +104,7 @@ function check(required, req, options){
 
     if(options.or){
         for(i in missing){
-            missing[i] = '  ' + missing[i];
+            missing[i] = "  " + missing[i];
         }
         missing.unshift("At least one of the following.");
     }
@@ -130,7 +130,7 @@ var operators = {
     $date: function(req, given, value, options){
         if(!isNaN(value)) given = Number(given);
         var d = new Date(given);
-        if(d == "Invalid Date") {
+        if(d === "Invalid Date") {
             delete req[options.method][value];
             return [value + " must be a valid date."];
         } else
@@ -146,9 +146,9 @@ var operators = {
         }
     },
     $boolean: function(req, given, value, options){
-        if(given === 'true')
+        if(given === "true")
             req[options.method][value] = true;
-        else if(given === 'false')
+        else if(given === "false")
             req[options.method][value] = false;
         else {
             delete req[options.method][value];
