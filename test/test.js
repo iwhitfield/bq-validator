@@ -30,7 +30,7 @@ describe('Validate singe field', function() {
 
     it('should verify a query parameter is not given', function (next) {
         var c = check(['a'], function (missing) {
-            assert.equal(missing, 'a must be given as query parameter.');
+            assert.equal(missing, 'a must be given.');
             next();
         });
         c({
@@ -42,7 +42,7 @@ describe('Validate singe field', function() {
 
     it('should verify a body parameter is not given', function (next) {
         var c = check(['a'], function (missing) {
-            assert.equal(missing, 'a must be given as body parameter.');
+            assert.equal(missing, 'a must be given.');
             next();
         });
         c({
@@ -86,7 +86,7 @@ describe("Validate multiple required fields", function(){
 
     it('should verify a query parameter is not given', function (next) {
         var c = check(['a', 'b', 'c'], function (missing) {
-            assert.equal(missing, 'b must be given as query parameter.')
+            assert.equal(missing, 'b must be given.')
             next();
         });
         c({
@@ -101,7 +101,7 @@ describe("Validate multiple required fields", function(){
 
     it('should verify a query parameter is not given', function (next) {
         var c = check(['a', 'b', 'c'], function (missing) {
-            assert.equal(missing, 'b must be given as body parameter.');
+            assert.equal(missing, 'b must be given.');
             next();
         });
         c({
@@ -116,8 +116,8 @@ describe("Validate multiple required fields", function(){
 
     it('should verify multiple query parameters are not given', function (next) {
         var c = check(['a', 'b', 'c'], function (missing) {
-            assert.equal(missing, 'b must be given as query parameter.\n' +
-                'c must be given as query parameter.');
+            assert.equal(missing, 'b must be given.\n' +
+                'c must be given.');
             next();
         });
         c({
@@ -131,8 +131,8 @@ describe("Validate multiple required fields", function(){
 
     it('should verify multiple body parameters are not given', function (next) {
         var c = check(['a', 'b', 'c'], function (missing) {
-            assert.equal(missing, 'b must be given as body parameter.\n' +
-                'c must be given as body parameter.');
+            assert.equal(missing, 'b must be given.\n' +
+                'c must be given.');
             next();
         });
         c({
@@ -177,9 +177,9 @@ describe("Validate $or with multiple fields", function(){
     it("should verify all fields are missing", function(next){
         var c = check([{ $or: ['a', 'b', 'c']}], function(missing){
             assert.equal(missing, "At least one of the following.\n" +
-                "  a must be given as body parameter.\n" +
-                "  b must be given as body parameter.\n" +
-                "  c must be given as body parameter.");
+                "  a must be given.\n" +
+                "  b must be given.\n" +
+                "  c must be given.");
             next();
         })
         c({
@@ -451,4 +451,123 @@ describe("Validate $query and $body", function(){
             query: { }
         }, null, next)
     });
+})
+
+describe("Validate explicit method", function(next){
+    it("should verify field is in query for get request", function(next){
+        var c = check([ "field" ], "get", function(missing){
+            assert.fail("Query field was given, but said to be missing");
+        })
+        c({
+            method: "GET",
+            query: {
+                field: "test"
+            },
+            body: { }
+        }, null, next)
+    });
+
+    it("should verify field is not in query for get request", function(next){
+        var c = check([ "field" ], "get", function(missing){
+            assert.equal("field must be given as query parameter.", missing);
+            next()
+        })
+        c({
+            method: "GET",
+            query: { },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to identify missing parameter."))
+    });
+
+    it("should skip verification for delete request", function(next){
+        var c = check([ "field" ], "delete", function(missing){
+            assert.fail("Verification should have been skipped.");
+        })
+        c({
+            method: "POST",
+            query: { },
+            body: { }
+        }, null, next)
+    });
+
+    it("should skip verification for post request", function(next){
+        var c = check([ "field" ], "get", function(missing){
+            assert.fail("Verification should have been skipped.");
+        })
+        c({
+            method: "POST",
+            query: { },
+            body: { }
+        }, null, next)
+    });
+
+    it("should skip verification for post request", function(next){
+        var c = check([ "field" ], "get", function(missing){
+            assert.fail("Verification should have been skipped.");
+        })
+        c({
+            method: "PUT",
+            query: { },
+            body: { }
+        }, null, next)
+    });
+
+    it("should verify field is in body for post request", function(next){
+        var c = check([ "field" ], "post", function(missing){
+            assert.fail("Query field was given, but said to be missing");
+        })
+        c({
+            method: "POST",
+            body: {
+                field: "test"
+            },
+            query: { }
+        }, null, next)
+    });
+
+    it("should verify field is not in body for post request", function(next){
+        var c = check([ "field" ], "post", function(missing){
+            assert.equal("field must be given as body parameter.", missing);
+            next()
+        })
+        c({
+            method: "POST",
+            query: { },
+            body: { }
+        }, null, assert.fail.bind(null, "Failed to identify missing parameter."))
+    });
+
+    it("should skip verification for delete request", function(next){
+        var c = check([ "field" ], "post", function(missing){
+            assert.fail("Verification should have been skipped.");
+        })
+        c({
+            method: "DELETE",
+            body: { },
+            query: { }
+        }, null, next)
+    });
+
+    it("should skip verification for get request", function(next){
+        var c = check([ "field" ], "post", function(missing){
+            assert.fail("Verification should have been skipped.");
+        })
+        c({
+            method: "GET",
+            body: { },
+            query: { }
+        }, null, next)
+    });
+
+    it("should skip verification for put request", function(next){
+        var c = check([ "field" ], "post", function(missing){
+            assert.fail("Verification should have been skipped.");
+        })
+        c({
+            method: "PUT",
+            query: { },
+            body: { }
+        }, null, next)
+    });
+
 })

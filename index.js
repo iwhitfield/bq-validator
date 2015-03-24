@@ -1,7 +1,20 @@
-module.exports = function(fields, onMissing) {
+module.exports = function(fields, method, onMissing) {
+    if(arguments.length == 2) {
+        onMissing = method;
+        method = null;
+    } else
+        method = method.toLowerCase();
     return function(req, res, next){
+        defMethod = false;
+        if(method && req.method.toLowerCase() != method)
+            return next();
+        else if(!method){
+            method = req.method.toLowerCase();
+            defMethod = true;
+        }
         var missing = check(fields, req, {
-            method: req.method == "POST" || req.method == "PUT" ? 'body' : 'query'
+            method: method == "post" || method == "put" ? 'body' : 'query',
+            defaultMethod: defMethod
         });
         if(missing.length > 0)
             onMissing(missing.join('\n'), req, res, next);
@@ -36,6 +49,7 @@ function check(required, req, options){
                     newMissing = check(value, req, newOpts);
                 } else if(key == "$body" || key == "$query"){
                     newOpts.method = key.slice(1);
+                    newOpts.defaultMethod = false;
                     newMissing = check(value, req, newOpts);
                 } else if(operators[key]){
                     if(value instanceof Array) {
@@ -79,7 +93,8 @@ function check(required, req, options){
                     forcePass = true;
             }
         } else if(typeof req[options.method][required[i]] == 'undefined') {
-            missing.push(required[i] + " must be given as " + options.method + " parameter.");
+            missing.push(required[i] + " must be given" +
+                (options.defaultMethod ? '.' : " as " + options.method + " parameter."));
         } else if(options.or)
             forcePass = true;
     }
