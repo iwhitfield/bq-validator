@@ -249,7 +249,7 @@ describe("Validate correct datatype", function(){
 
     it("should verify field is a date", function(next){
         var c = check([ { $date: 'date' } ], function(missing){
-            assert.fail("Field was given as number, but said to be missing");
+            assert.fail("Field was given as date, but said to be missing");
         })
         c({
             method: "GET",
@@ -271,7 +271,7 @@ describe("Validate correct datatype", function(){
                 date: "fail"
             },
             body: { }
-        }, null, assert.fail.bind(null, "Failed to indentify field was not a number."))
+        }, null, assert.fail.bind(null, "Failed to indentify field was not a date."))
     });
 
     it("should verify field is JSON", function(next){

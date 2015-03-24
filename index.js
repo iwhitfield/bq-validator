@@ -130,7 +130,7 @@ var operators = {
     $date: function(req, given, value, options){
         if(!isNaN(value)) given = Number(given);
         var d = new Date(given);
-        if(d === "Invalid Date") {
+        if(d.toString() === "Invalid Date") {
             delete req[options.method][value];
             return [value + " must be a valid date."];
         } else
