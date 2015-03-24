@@ -5,7 +5,7 @@ module.exports = function(fields, method, onMissing) {
     } else
         method = method.toLowerCase();
     return function(req, res, next){
-        defMethod = false;
+        var defMethod = false;
         if(method && req.method.toLowerCase() != method)
             return next();
         else if(!method){
