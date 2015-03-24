@@ -1,3 +1,4 @@
+[ ![Codeship Status for RobCatch/bq-validator](https://codeship.com/projects/666b0790-b46b-0132-5b60-26eb45f0762a/status?branch=master)](https://codeship.com/projects/70464)
 # bq-validator
 Middleware to validate fields given in requests to an express app
 
