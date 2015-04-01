@@ -8,11 +8,38 @@
 	"url": "https://github.com/RobCatch/bq-validator"
   },
   "devDependencies": {
-    "mocha": "*"
+    "blanket": "1.1.6",
+    "codeclimate-test-reporter": "0.0.4",
+    "mocha": "2.1.0",
+    "mocha-lcov-reporter": "0.0.1"
   },
   "scripts": {
-    "test": "node test.js"
+    "coverage": "mocha -r blanket -R html-cov test",
+    "lcov": "mocha -r blanket -R mocha-lcov-reporter",
+    "test": "mocha test"
   },
-  "author": "robcatchpole@gmail.com",
+  "config": {
+    "blanket": {
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ],
+      "pattern": [
+        "index.js"
+      ]
+    }
+  },
+  "author": {
+    "name" : "Rob Catchpole",
+    "email": "robcatchpole@gmail.com",
+    "url" : "https://github.com/RobCatch"
+  },
+  "contributors": [
+    {
+      "name" : "Isaac Whitfield",
+      "email": "iwhitfield@appcelerator.com",
+      "url" : "https://github.com/iwhitfield"
+    }
+  ],
   "license": "ISC"
 }
